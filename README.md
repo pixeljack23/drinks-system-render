@@ -61,8 +61,8 @@ This repo includes [render.yaml](c:\Users\jacks\OneDrive\Desktop\New folder (2)\
 
 Render service settings:
 
-- Build command: `mvn clean package -DskipTests`
-- Start command: `java -jar target/drinks-system-0.0.1-SNAPSHOT.jar`
+- Runtime: `docker`
+- Image build: [Dockerfile](c:\Users\jacks\OneDrive\Desktop\New folder (2)\drink_systems\Dockerfile)
 - Health check path: `/order`
 
 Required sensitive env vars on Render:
