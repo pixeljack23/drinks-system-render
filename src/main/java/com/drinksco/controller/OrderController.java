@@ -25,7 +25,7 @@ public class OrderController {
 		model.addAttribute("pageTitle", "Branch Ordering");
 		model.addAttribute("branches", stockService.getAllBranches());
 		model.addAttribute("drinks", stockService.getAllDrinks());
-		return "index";
+		return "customer";
 	}
 
 	@PostMapping("/orders")
