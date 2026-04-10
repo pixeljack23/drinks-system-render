@@ -1,9 +1,13 @@
 package com.drinksco.controller;
 
+import com.drinksco.model.Order;
 import com.drinksco.model.Branch;
+import com.drinksco.repository.OrderRepository;
 import com.drinksco.service.ReportService;
 import com.drinksco.service.StockService;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +20,7 @@ public class AdminController {
 
 	private final StockService stockService;
 	private final ReportService reportService;
+	private final OrderRepository orderRepository;
 
 	@GetMapping("/admin")
 	public String dashboard(Model model) {
@@ -42,5 +47,43 @@ public class AdminController {
 				? List.of()
 				: stockService.getStockForBranch(selectedBranchId));
 		return "admin/stock";
+	}
+
+	@GetMapping("/admin/orders")
+	public String orders(Model model) {
+		List<Order> allOrders = orderRepository.findAll();
+		List<Branch> branches = stockService.getAllBranches();
+		
+		// Group orders by branch
+		List<Order> nairobiOrders = allOrders.stream()
+				.filter(o -> o.getBranch() != null && "NAIROBI(HQ)".equalsIgnoreCase(o.getBranch().getName()))
+				.collect(Collectors.toList());
+		
+		List<Order> kisumuOrders = allOrders.stream()
+				.filter(o -> o.getBranch() != null && "KISUMU".equalsIgnoreCase(o.getBranch().getName()))
+				.collect(Collectors.toList());
+		
+		List<Order> nakuruOrders = allOrders.stream()
+				.filter(o -> o.getBranch() != null && "NAKURU".equalsIgnoreCase(o.getBranch().getName()))
+				.collect(Collectors.toList());
+		
+		List<Order> mombasaOrders = allOrders.stream()
+				.filter(o -> o.getBranch() != null && "MOMBASA".equalsIgnoreCase(o.getBranch().getName()))
+				.collect(Collectors.toList());
+		
+		// Calculate total sales
+		BigDecimal totalSales = allOrders.stream()
+				.map(Order::getTotalAmount)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		model.addAttribute("pageTitle", "Orders");
+		model.addAttribute("branches", branches);
+		model.addAttribute("nairobiOrders", nairobiOrders);
+		model.addAttribute("kisumuOrders", kisumuOrders);
+		model.addAttribute("nakuruOrders", nakuruOrders);
+		model.addAttribute("mombasaOrders", mombasaOrders);
+		model.addAttribute("totalOrders", allOrders.size());
+		model.addAttribute("totalSalesAmount", totalSales);
+		return "admin/Orders";
 	}
 }

@@ -1,55 +1,220 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{layout :: head(${pageTitle})}"></head>
+<head th:replace="~{sidebar :: head(${pageTitle})}"></head>
 <body>
-<div th:replace="~{layout :: navbar}"></div>
+<style>
+    .card-nairobi {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+        border: none;
+        color: white;
+    }
+    .card-nairobi .text-secondary {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    .card-nairobi .bi {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .card-kisumu {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+        border: none;
+        color: white;
+    }
+    .card-kisumu .text-secondary {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    .card-kisumu .bi {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .card-nakuru {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%) !important;
+        border: none;
+        color: white;
+    }
+    .card-nakuru .text-secondary {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    .card-nakuru .bi {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .card-mombasa {
+        background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%) !important;
+        border: none;
+        color: white;
+    }
+    .card-mombasa .text-secondary {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    .card-mombasa .bi {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .chart-card {
+        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+        border: none;
+        color: white;
+    }
+    .chart-card .card-title {
+        color: white !important;
+        font-weight: 600;
+    }
+    .chart-card .card-body {
+        color: white;
+    }
+</style>
+<div th:replace="~{sidebar :: navbar}"></div>
 
 <main class="container py-5">
     <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="card surface-card h-100">
+        <div class="col-md-4">
+            <div class="card surface-card card-orders h-100">
                 <div class="card-body p-4">
-                    <div class="text-secondary small text-uppercase">Orders</div>
-                    <div class="display-6 fw-bold" th:text="${totalOrders}">0</div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">Total Orders</div>
+                            <div class="display-6 fw-bold" th:text="${totalOrders}">0</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-cart4 display-4"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card surface-card h-100">
+        <div class="col-md-4">
+            <div class="card surface-card card-revenue h-100">
                 <div class="card-body p-4">
-                    <div class="text-secondary small text-uppercase">Revenue</div>
-                    <div class="display-6 fw-bold" th:text="'$' + ${totalRevenue}">$0.00</div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">Total Revenue</div>
+                            <div class="display-6 fw-bold" th:text="'KSH ' + ${totalRevenue}">KSH 0.00</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-cash-coin display-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="col-md-4">
+            <div class="card surface-card card-metric h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">Stock level</div>
+                            <div class="display-6 fw-bold" th:text="${totalOrders}">0</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-exclamation-triangle-fill display-4"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div class="row d-flex flex-row">
+       <h4 class="fw-bold">Sales(Per Branch)</h4>
+    </div>
+
+ <div class="row g-3 mb-3">
+      <div class="col-md-3">
+                <div class="card surface-card card-nairobi h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">NAIROBI(HQ)</div>
+                            <div class="display-6 fw-bold" th:text="${totalOrders}">0</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-building display-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+      <div class="col-md-3">
+          <div class="card surface-card card-kisumu h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">KISUMU</div>
+                            <div class="display-6 fw-bold" th:text="'KSH ' + ${totalRevenue}">KS 0.00</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-geo-alt display-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+      </div>
+      <div class="col-md-3">
+              <div class="card surface-card card-nakuru h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">NAKURU</div>
+                            <div class="display-6 fw-bold" th:text="'KSH ' + ${totalRevenue}">KSH 0.00</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-shop display-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+      <div class="col-md-3">
+              <div class="card surface-card card-mombasa h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-secondary small text-uppercase">MOMBASA</div>
+                            <div class="display-6 fw-bold" th:text="'KSH ' + ${totalRevenue}">KSH 0.00</div>
+                        </div>
+                        <div>
+                            <i class="bi bi-water display-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+
+ </div>
+
+ <div class="row">
+
+   <div class="col-md-7">
     <div class="card surface-card">
         <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
                 <h1 class="h4 mb-0">Recent orders</h1>
-                <span class="text-secondary" th:text="${#lists.size(branches)} + ' branches'">3 branches</span>
+                <div class="input-group" style="max-width: 300px;">
+                    <span class="input-group-text bg-white border-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control border-0" placeholder="Search orders..." id="searchOrders">
+                </div>
+                <span class="text-secondary" th:text="${#lists.size(branches)} + ' branches'">4 branches</span>
             </div>
             <div class="table-responsive">
-                <table class="table align-middle">
+                <table class="table table-dark table-striped align-middle">
                     <thead>
                     <tr>
                         <th>Customer</th>
                         <th>Branch</th>
-                        <th>Status</th>
+                        <th>Product</th>
+                        <th>Quantity</th>
                         <th>Total</th>
-                        <th>Placed</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:if="${#lists.isEmpty(recentOrders)}">
-                        <td class="text-secondary" colspan="5">No orders yet. Seeded stock is ready for the first order.</td>
+                        <td class="text-secondary text-center" colspan="5">No orders yet. Seeded stock is ready for the first order.</td>
                     </tr>
                     <tr th:each="order : ${recentOrders}">
                         <td th:text="${order.customerName}">Walk-in Customer</td>
                         <td th:text="${order.branch.name}">CBD Branch</td>
                         <td th:text="${order.status}">CONFIRMED</td>
-                        <td th:text="'$' + ${order.totalAmount}">$2.50</td>
+                        <td th:text="'KSH ' + ${order.totalAmount}">KSH 2.50</td>
                         <td th:text="${#temporals.format(order.orderedAt, 'yyyy-MM-dd HH:mm')}">2026-04-09 20:00</td>
                     </tr>
                     </tbody>
@@ -57,8 +222,125 @@
             </div>
         </div>
     </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card surface-card chart-card">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-4">Orders by Branch</h5>
+                <canvas id="branchOrdersChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+ </div>
+
 </main>
 
-<div th:replace="~{layout :: scripts}"></div>
+<div th:replace="~{sidebar :: scripts}"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Extract branch data from the table
+        const recentOrdersTable = document.querySelector('.table tbody');
+        const branchOrdersMap = {};
+        
+        // Count orders per branch from the recent orders
+        const rows = recentOrdersTable.querySelectorAll('tr');
+        rows.forEach(row => {
+            const branchCell = row.cells[1]; // Branch is in the 2nd column
+            if (branchCell && branchCell.textContent.trim() !== 'No orders yet') {
+                const branchName = branchCell.textContent.trim();
+                branchOrdersMap[branchName] = (branchOrdersMap[branchName] || 0) + 1;
+            }
+        });
+        
+        // Get the canvas element
+        const ctx = document.getElementById('branchOrdersChart');
+        if (!ctx) return;
+        
+        // Define branch colors matching your theme
+        const branchColors = {
+            'NAIROBI(HQ)': '#e74c3c',
+            'KISUMU': '#3498db',
+            'NAKURU': '#f39c12',
+            'MOMBASA': '#1abc9c'
+        };
+        
+        // Prepare chart data
+        const branchNames = Object.keys(branchOrdersMap);
+        const orderCounts = Object.values(branchOrdersMap);
+        const backgroundColors = branchNames.map(branch => branchColors[branch] || '#95a5a6');
+        
+        // Create the chart
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: branchNames.length > 0 ? branchNames : ['No Data'],
+                datasets: [{
+                    label: 'Orders per Branch',
+                    data: orderCounts.length > 0 ? orderCounts : [0],
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(color => color),
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    hoverBackgroundColor: backgroundColors.map(color => color + 'dd')
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: { size: 12 },
+                            color: '#fff'
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#fff'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#fff',
+                            font: { weight: 'bold' }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchOrders');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchValue = this.value.toLowerCase();
+                const tableRows = document.querySelectorAll('.table tbody tr');
+                
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchValue)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
 </body>
 </html>
