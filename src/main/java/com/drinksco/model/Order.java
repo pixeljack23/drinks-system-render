@@ -36,11 +36,15 @@ public class Order {
 
 	private String customerPhone;
 
+	private String referenceNumber;
+
 	private LocalDateTime orderedAt;
 
 	private String status;
 
 	private BigDecimal totalAmount;
+
+	private BigDecimal amountPaid;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "branch_id")

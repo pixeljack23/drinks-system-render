@@ -1,840 +1,102 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-<title>Drinks Co. — Order System</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
-<style>
-  :root {
-    --brand: #0f3460;
-    --brand-light: #1a5276;
-    --accent: #e94560;
-    --accent2: #f5a623;
-    --bg: #f4f6fb;
-    --surface: #ffffff;
-    --muted: #6b7280;
-    --border: #e5e7eb;
-    --success: #10b981;
-    --success-bg: #ecfdf5;
-  }
-  * { box-sizing: border-box; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    min-height: 100vh;
-    color: #1f2937;
-  }
-
-  /* ── screens ── */
-  .screen { display: none; }
-  .screen.active { display: block; }
-
-  /* ── top nav ── */
-  .top-nav {
-    background: var(--brand);
-    color: #fff;
-    padding: 0 24px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 12px rgba(15,52,96,.18);
-  }
-  .brand-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    letter-spacing: 1px;
-  }
-  .brand-name span { color: var(--accent); }
-  .nav-badge {
-    background: rgba(255,255,255,.15);
-    border: 1px solid rgba(255,255,255,.2);
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: .75rem;
-    font-weight: 500;
-  }
-
-  /* ── progress steps ── */
-  .steps-bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
-  }
-  .steps {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-  .step {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: .8rem;
-    color: var(--muted);
-    font-weight: 500;
-  }
-  .step.done .step-num { background: var(--success); color: #fff; border-color: var(--success); }
-  .step.active .step-num { background: var(--brand); color: #fff; border-color: var(--brand); }
-  .step.active { color: var(--brand); }
-  .step-num {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: .75rem; font-weight: 600;
-    background: var(--bg);
-    color: var(--muted);
-    flex-shrink: 0;
-    transition: all .3s;
-  }
-  .step-line {
-    flex: 1;
-    height: 2px;
-    background: var(--border);
-    margin: 0 8px;
-    max-width: 60px;
-  }
-  .step-line.done { background: var(--success); }
-
-  /* ── hero banner ── */
-  .hero-banner {
-    background: linear-gradient(135deg, var(--brand) 0%, #1a3a5c 60%, #0d2b45 100%);
-    color: #fff;
-    padding: 48px 24px 56px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero-banner::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    background: rgba(233,69,96,.12);
-  }
-  .hero-banner::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; left: -30px;
-    width: 160px; height: 160px;
-    border-radius: 50%;
-    background: rgba(245,166,35,.08);
-  }
-  .hero-icon {
-    width: 64px; height: 64px;
-    background: rgba(255,255,255,.12);
-    border: 2px solid rgba(255,255,255,.2);
-    border-radius: 20px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px;
-    font-size: 28px;
-  }
-  .hero-banner h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    margin-bottom: 8px;
-  }
-  .hero-banner p { opacity: .75; font-size: .9rem; margin: 0; }
-
-  /* ── branch cards ── */
-  .branch-section {
-    margin-top: -28px;
-    padding: 0 20px 40px;
-  }
-  .section-label {
-    font-size: .7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 14px;
-  }
-  .branch-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .branch-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 20px 16px;
-    cursor: pointer;
-    transition: all .2s;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .branch-card:hover {
-    border-color: var(--brand);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(15,52,96,.12);
-  }
-  .branch-card:active { transform: translateY(0) scale(.98); }
-  .branch-card.hq {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    text-align: left;
-    background: linear-gradient(135deg, #0f3460 0%, #1a5276 100%);
-    color: #fff;
-    border-color: transparent;
-  }
-  .branch-card.hq:hover { box-shadow: 0 8px 28px rgba(15,52,96,.3); }
-  .branch-card.hq .branch-icon { background: rgba(255,255,255,.15); }
-  .branch-card.hq .branch-name { color: #fff; }
-  .branch-card.hq .branch-loc { color: rgba(255,255,255,.65); }
-  .branch-card.hq .hq-badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: .65rem;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 6px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-    position: absolute;
-    top: 12px; right: 12px;
-  }
-  .branch-icon {
-    width: 48px; height: 48px;
-    border-radius: 14px;
-    background: #eef2ff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-    margin: 0 auto 10px;
-  }
-  .branch-card.hq .branch-icon { margin: 0; }
-  .branch-name { font-weight: 600; font-size: .95rem; margin-bottom: 2px; color: #1f2937; }
-  .branch-loc { font-size: .78rem; color: var(--muted); }
-
-  /* ── order screen ── */
-  .order-header {
-    background: var(--brand);
-    color: #fff;
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .back-btn {
-    background: rgba(255,255,255,.15);
-    border: none;
-    color: #fff;
-    width: 34px; height: 34px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: background .15s;
-  }
-  .back-btn:hover { background: rgba(255,255,255,.25); }
-  .order-header-info h2 { font-size: 1.1rem; font-weight: 600; margin: 0; }
-  .order-header-info p { font-size: .78rem; opacity: .7; margin: 0; }
-
-  .customer-section {
-    background: var(--surface);
-    padding: 18px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .form-row { display: flex; gap: 12px; }
-  .form-group { flex: 1; }
-  .form-label { font-size: .75rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: .5px; }
-  .form-input {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: .9rem;
-    color: #1f2937;
-    background: var(--bg);
-    transition: border-color .2s;
-    outline: none;
-  }
-  .form-input:focus { border-color: var(--brand); background: #fff; }
-
-  .menu-section { padding: 16px 20px 120px; }
-  .menu-label {
-    font-size: .7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-  .drink-card {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-    transition: all .2s;
-  }
-  .drink-card.selected {
-    border-color: var(--brand);
-    background: #f0f4ff;
-  }
-  .drink-thumb {
-    width: 70px; height: 90px;
-    border-radius: 12px;
-    background: #f8f9fb;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    overflow: hidden;
-    padding: 6px 4px;
-  }
-  .drink-thumb img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-  .drink-details { flex: 1; min-width: 0; }
-  .drink-name { font-weight: 600; font-size: .9rem; margin: 0 0 2px; }
-  .drink-brand { font-size: .75rem; color: var(--muted); margin: 0 0 3px; }
-  .drink-price { font-size: .85rem; font-weight: 600; color: var(--brand); margin: 0; }
-  .qty-control {
-    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-  }
-  .qty-btn {
-    width: 30px; height: 30px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border);
-    background: var(--bg);
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: 600;
-    display: flex; align-items: center; justify-content: center;
-    transition: all .15s;
-    color: var(--brand);
-    line-height: 1;
-  }
-  .qty-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
-  .qty-num {
-    font-size: .95rem;
-    font-weight: 700;
-    min-width: 20px;
-    text-align: center;
-    color: var(--brand);
-  }
-
-  /* ── sticky cart bar ── */
-  .cart-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    box-shadow: 0 -4px 20px rgba(0,0,0,.08);
-    z-index: 50;
-  }
-  .cart-info { flex: 1; }
-  .cart-label { font-size: .72rem; color: var(--muted); margin-bottom: 1px; }
-  .cart-total { font-size: 1.3rem; font-weight: 700; color: #1f2937; }
-  .cart-items-count { font-size: .72rem; color: var(--muted); }
-  .place-btn {
-    background: var(--brand);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 13px 22px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: .9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .2s;
-    white-space: nowrap;
-  }
-  .place-btn:hover { background: var(--brand-light); }
-  .place-btn:disabled { opacity: .35; cursor: not-allowed; }
-  .place-btn:active:not(:disabled) { transform: scale(.97); }
-
-  /* ── receipt ── */
-  .receipt-screen { background: var(--bg); min-height: 100vh; }
-  .success-header {
-    background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
-    color: #fff;
-    padding: 32px 20px 48px;
-    text-align: center;
-  }
-  .success-check {
-    width: 60px; height: 60px;
-    background: rgba(255,255,255,.2);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    margin: 0 auto 14px;
-    border: 2px solid rgba(255,255,255,.3);
-  }
-  .success-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 4px; }
-  .success-header p { opacity: .8; font-size: .85rem; margin: 0; }
-
-  .receipt-body { margin-top: -24px; padding: 0 16px 40px; }
-  .receipt-card {
-    background: var(--surface);
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-  .receipt-top {
-    padding: 22px 22px 16px;
-    border-bottom: 2px dashed var(--border);
-    text-align: center;
-  }
-  .receipt-logo {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: var(--brand);
-    letter-spacing: 1px;
-    margin-bottom: 4px;
-  }
-  .receipt-logo span { color: var(--accent); }
-  .receipt-ref { font-size: .75rem; color: var(--muted); }
-  .receipt-branch-tag {
-    display: inline-block;
-    background: #eef2ff;
-    color: var(--brand);
-    border-radius: 8px;
-    padding: 4px 12px;
-    font-size: .78rem;
-    font-weight: 600;
-    margin-top: 6px;
-  }
-  .receipt-meta { padding: 16px 22px; border-bottom: 1px solid var(--border); }
-  .meta-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: .83rem;
-    padding: 4px 0;
-  }
-  .meta-row .label { color: var(--muted); }
-  .meta-row .val { font-weight: 500; color: #1f2937; }
-
-  .receipt-items { padding: 16px 22px; }
-  .items-heading {
-    font-size: .68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-  .item-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 7px 0;
-    border-bottom: 1px dashed var(--border);
-    font-size: .85rem;
-  }
-  .item-row:last-child { border-bottom: none; }
-  .item-name { color: #1f2937; font-weight: 500; }
-  .item-qty { color: var(--muted); font-size: .78rem; margin-top: 1px; }
-  .item-sub { font-weight: 600; color: var(--brand); }
-
-  .receipt-totals {
-    padding: 14px 22px;
-    background: var(--bg);
-    border-top: 2px dashed var(--border);
-  }
-  .total-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: .83rem;
-    padding: 3px 0;
-    color: var(--muted);
-  }
-  .total-row.grand {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #1f2937;
-    padding-top: 10px;
-    margin-top: 6px;
-    border-top: 1.5px solid var(--border);
-  }
-  .total-row.grand .g-amount { color: var(--brand); }
-
-  .barcode-section {
-    padding: 16px 22px 20px;
-    text-align: center;
-    border-top: 1px solid var(--border);
-  }
-  .barcode {
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    height: 40px;
-    gap: 1px;
-    margin-bottom: 6px;
-  }
-  .bar { background: #1f2937; border-radius: 1px; }
-  .receipt-footer-text {
-    font-size: .72rem;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-  .receipt-ref-num { font-size: .7rem; color: var(--muted); letter-spacing: 2px; margin-top: 2px; }
-
-  .new-order-section { padding: 16px; }
-  .new-order-btn {
-    width: 100%;
-    background: transparent;
-    border: 1.5px solid var(--border);
-    border-radius: 12px;
-    padding: 13px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: .9rem;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .new-order-btn:hover { border-color: var(--brand); color: var(--brand); background: #eef2ff; }
-
-  /* ── responsive ── */
-  @media (max-width: 480px) {
-    .branch-grid { grid-template-columns: 1fr; }
-    .branch-card.hq { grid-column: 1; }
-    .form-row { flex-direction: column; gap: 10px; }
-    .hero-banner h1 { font-size: 1.6rem; }
-  }
-</style>
-</head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head(${pageTitle})}"></head>
 <body>
+<div th:replace="~{layout :: navbar}"></div>
 
-<!-- ════════════════════════════════════════
-     SCREEN 1 — Branch Selection
-════════════════════════════════════════ -->
-<div class="screen active" id="screen1">
-  <nav class="top-nav">
-    <div class="brand-name">Drinks<span>Co</span>.</div>
-    <div class="nav-badge">🇰🇪 4 locations</div>
-  </nav>
+<style>
+    .branch-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+    .branch-card {
+        display: block;
+        border-radius: 1.4rem;
+        padding: 1.5rem;
+        text-decoration: none;
+        color: inherit;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid rgba(30, 58, 138, 0.10);
+        box-shadow: 0 18px 48px rgba(17, 24, 39, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .branch-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 24px 56px rgba(17, 24, 39, 0.12);
+        border-color: rgba(20, 184, 166, 0.36);
+    }
+    .branch-card.hq {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.96), rgba(20, 184, 166, 0.86));
+        color: #fff;
+    }
+    .branch-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: start;
+    }
+    .branch-badge {
+        border-radius: 999px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(249, 115, 22, 0.12);
+        color: var(--brand-accent);
+    }
+    .branch-card.hq .branch-badge {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+    }
+    @media (max-width: 991.98px) {
+        .branch-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 
-  <div class="steps-bar">
-    <div class="steps">
-      <div class="step active"><div class="step-num">1</div>Branch</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-num">2</div>Order</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-num">3</div>Receipt</div>
-    </div>
-  </div>
-
-  <div class="hero-banner">
-    <div class="hero-icon">🥤</div>
-    <h1>Welcome</h1>
-    <p>Choose your branch to start ordering</p>
-  </div>
-
-  <div class="branch-section">
-    <div class="section-label">Select your branch</div>
-    <div class="branch-grid">
-      <div class="branch-card hq" onclick="selectBranch('Nairobi HQ','Nairobi CBD')">
-        <span class="hq-badge">HQ</span>
-        <div class="branch-icon">🏢</div>
-        <div>
-          <div class="branch-name">Nairobi HQ</div>
-          <div class="branch-loc">Nairobi CBD</div>
+<main class="container py-5 page-shell">
+    <section class="hero-card p-4 p-lg-5 mb-4">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7">
+                <div class="section-label text-uppercase fw-bold">Screen 1</div>
+                <h1 class="display-6 fw-bold mb-3">Choose a branch and start the order.</h1>
+                <p class="text-secondary mb-0">The menu and stock shown on the next screen come directly from the current branch inventory.</p>
+            </div>
+            <div class="col-lg-5">
+                <div class="surface-card p-4 h-100">
+                    <div class="section-label text-uppercase fw-bold">Available Branches</div>
+                    <div class="display-6 fw-bold" th:text="${#lists.size(branches)}">4</div>
+                    <div class="text-secondary">Customer ordering is enabled for the seeded branch network.</div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="branch-card" onclick="selectBranch('Nakuru Branch','Nakuru Town')">
-        <div class="branch-icon">📍</div>
-        <div class="branch-name">Nakuru</div>
-        <div class="branch-loc">Nakuru Town</div>
-      </div>
-      <div class="branch-card" onclick="selectBranch('Mombasa Branch','Mombasa Island')">
-        <div class="branch-icon">🌊</div>
-        <div class="branch-name">Mombasa</div>
-        <div class="branch-loc">Mombasa Island</div>
-      </div>
-      <div class="branch-card" onclick="selectBranch('Kisumu Branch','Kisumu City')">
-        <div class="branch-icon">🏙️</div>
-        <div class="branch-name">Kisumu</div>
-        <div class="branch-loc">Kisumu City</div>
-      </div>
-    </div>
-  </div>
-</div>
+    </section>
 
-<!-- ════════════════════════════════════════
-     SCREEN 2 — Order Menu
-════════════════════════════════════════ -->
-<div class="screen" id="screen2">
-  <nav class="top-nav">
-    <div class="brand-name">Drinks<span>Co</span>.</div>
-    <div class="nav-badge" id="nav-branch-tag">Branch</div>
-  </nav>
+    <section class="branch-grid">
+        <a class="branch-card"
+           th:classappend="${branch.name == 'Headquarters'} ? ' hq' : ''"
+           th:each="branch : ${branches}"
+           th:href="@{/order/{branchId}(branchId=${branch.id})}">
+            <div class="branch-meta mb-4">
+                <div>
+                    <div class="section-label text-uppercase fw-bold mb-2"
+                         th:text="${branch.name == 'Headquarters'} ? 'Head Office' : 'Branch Outlet'">Branch Outlet</div>
+                    <h2 class="h3 mb-2" th:text="${branch.name == 'Headquarters' ? 'Nairobi HQ' : branch.name}">Nairobi HQ</h2>
+                    <p class="mb-0 opacity-75" th:text="${branch.location}">Nairobi CBD</p>
+                </div>
+                <span class="branch-badge" th:text="${branch.name == 'Headquarters'} ? 'HQ' : 'Open'">HQ</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Browse drinks</span>
+                <span aria-hidden="true">&rarr;</span>
+            </div>
+        </a>
+    </section>
+</main>
 
-  <div class="steps-bar">
-    <div class="steps">
-      <div class="step done"><div class="step-num">✓</div>Branch</div>
-      <div class="step-line done"></div>
-      <div class="step active"><div class="step-num">2</div>Order</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="step-num">3</div>Receipt</div>
-    </div>
-  </div>
-
-  <div class="order-header">
-    <button class="back-btn" onclick="goTo('screen1')">&#8592;</button>
-    <div class="order-header-info">
-      <h2 id="order-branch-title">Branch</h2>
-      <p>Add drinks to your order</p>
-    </div>
-  </div>
-
-  <div class="customer-section">
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Your name</label>
-        <input class="form-input" type="text" id="cust-name" placeholder="Full name" oninput="updateBtn()"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Phone no.</label>
-        <input class="form-input" type="tel" id="cust-phone" placeholder="07XX XXX XXX" oninput="updateBtn()"/>
-      </div>
-    </div>
-  </div>
-
-  <div class="menu-section">
-    <div class="menu-label">Available drinks</div>
-    <div id="drink-list"></div>
-  </div>
-
-  <div class="cart-bar">
-    <div class="cart-info">
-      <div class="cart-label">Order total</div>
-      <div class="cart-total" id="cart-total">KES 0.00</div>
-      <div class="cart-items-count" id="cart-count">No items selected</div>
-    </div>
-    <button class="place-btn" id="place-btn" onclick="placeOrder()" disabled>
-      Place Order →
-    </button>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     SCREEN 3 — Receipt
-════════════════════════════════════════ -->
-<div class="screen receipt-screen" id="screen3">
-  <nav class="top-nav">
-    <div class="brand-name">Drinks<span>Co</span>.</div>
-    <div class="nav-badge" style="background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.4)">✓ Confirmed</div>
-  </nav>
-
-  <div class="steps-bar">
-    <div class="steps">
-      <div class="step done"><div class="step-num">✓</div>Branch</div>
-      <div class="step-line done"></div>
-      <div class="step done"><div class="step-num">✓</div>Order</div>
-      <div class="step-line done"></div>
-      <div class="step active"><div class="step-num">3</div>Receipt</div>
-    </div>
-  </div>
-
-  <div class="success-header">
-    <div class="success-check">✓</div>
-    <h2>Order Confirmed!</h2>
-    <p>Your drinks are being prepared</p>
-  </div>
-
-  <div class="receipt-body">
-    <div class="receipt-card">
-
-      <div class="receipt-top">
-        <div class="receipt-logo">Drinks<span>Co</span>.</div>
-        <div class="receipt-ref" id="r-ref">Ref: —</div>
-        <div><span class="receipt-branch-tag" id="r-branch">Branch</span></div>
-      </div>
-
-      <div class="receipt-meta">
-        <div class="meta-row"><span class="label">Customer</span><span class="val" id="r-name">—</span></div>
-        <div class="meta-row"><span class="label">Phone</span><span class="val" id="r-phone">—</span></div>
-        <div class="meta-row"><span class="label">Date</span><span class="val" id="r-date">—</span></div>
-        <div class="meta-row"><span class="label">Served at</span><span class="val" id="r-branch-loc">—</span></div>
-      </div>
-
-      <div class="receipt-items">
-        <div class="items-heading">Items ordered</div>
-        <div id="r-items"></div>
-      </div>
-
-      <div class="receipt-totals">
-        <div class="total-row"><span>Subtotal</span><span id="r-subtotal">KES 0.00</span></div>
-        <div class="total-row"><span>VAT (0%)</span><span>KES 0.00</span></div>
-        <div class="total-row grand">
-          <span>Total paid</span>
-          <span class="g-amount" id="r-total">KES 0.00</span>
-        </div>
-      </div>
-
-      <div class="barcode-section">
-        <div class="barcode" id="barcode"></div>
-        <div class="receipt-ref-num" id="r-barcode-num">000000</div>
-        <div class="receipt-footer-text">Thank you for choosing Drinks Co. · drinksco.co.ke</div>
-      </div>
-
-    </div>
-
-    <div class="new-order-section">
-      <button class="new-order-btn" onclick="newOrder()">&#8592; Start a new order</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  const drinks = [
-    { id:1, name:'Coca-Cola',   brand:'Coca-Cola Co.', price:50, img:'https://pngimg.com/uploads/cocacola/coca_cola_PNG8908.png' },
-    { id:2, name:'Sprite',      brand:'Coca-Cola Co.', price:50, img:'https://pngimg.com/uploads/sprite/sprite_PNG8923.png' },
-    { id:3, name:'Fanta',       brand:'Coca-Cola Co.', price:65, img:'https://pngimg.com/uploads/fanta/fanta_PNG2.png' },
-    { id:4, name:'Minute Maid', brand:'Coca-Cola Co.', price:80, img:'https://pngimg.com/uploads/juice/juice_PNG7192.png' },
-  ];
-
-  let qty = {};
-  let currentBranch = '';
-  let currentBranchLoc = '';
-
-  function goTo(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    window.scrollTo(0, 0);
-  }
-
-  function selectBranch(name, loc) {
-    currentBranch = name;
-    currentBranchLoc = loc;
-    document.getElementById('order-branch-title').textContent = name;
-    document.getElementById('nav-branch-tag').textContent = name;
-    renderDrinks();
-    goTo('screen2');
-  }
-
-  function renderDrinks() {
-    qty = {};
-    drinks.forEach(d => qty[d.id] = 0);
-    const list = document.getElementById('drink-list');
-    list.innerHTML = drinks.map(d => `
-      <div class="drink-card" id="card-${d.id}">
-        <div class="drink-thumb">
-          <img src="${d.img}" alt="${d.name}" onerror="this.style.display='none'"/>
-        </div>
-        <div class="drink-details">
-          <p class="drink-name">${d.name}</p>
-          <p class="drink-brand">${d.brand}</p>
-          <p class="drink-price">KES ${d.price}.00</p>
-        </div>
-        <div class="qty-control">
-          <button class="qty-btn" onclick="changeQty(${d.id}, -1)">−</button>
-          <span class="qty-num" id="qty-${d.id}">0</span>
-          <button class="qty-btn" onclick="changeQty(${d.id}, 1)">+</button>
-        </div>
-      </div>
-    `).join('');
-    updateCartBar();
-  }
-
-  function changeQty(id, delta) {
-    qty[id] = Math.max(0, qty[id] + delta);
-    document.getElementById('qty-' + id).textContent = qty[id];
-    const card = document.getElementById('card-' + id);
-    card.classList.toggle('selected', qty[id] > 0);
-    updateCartBar();
-  }
-
-  function updateCartBar() {
-    const total = drinks.reduce((s, d) => s + d.price * qty[d.id], 0);
-    const count = drinks.reduce((s, d) => s + qty[d.id], 0);
-    document.getElementById('cart-total').textContent = 'KES ' + total.toFixed(2);
-    document.getElementById('cart-count').textContent = count === 0
-      ? 'No items selected'
-      : count + (count === 1 ? ' item' : ' items') + ' in order';
-    updateBtn();
-  }
-
-  function updateBtn() {
-    const hasItems = drinks.some(d => qty[d.id] > 0);
-    const hasName  = document.getElementById('cust-name').value.trim().length > 0;
-    document.getElementById('place-btn').disabled = !(hasItems && hasName);
-  }
-
-  function placeOrder() {
-    const name  = document.getElementById('cust-name').value.trim() || 'Guest';
-    const phone = document.getElementById('cust-phone').value.trim() || '—';
-    const total = drinks.reduce((s, d) => s + d.price * qty[d.id], 0);
-    const ref   = 'DC-' + String(Math.floor(Math.random() * 90000) + 10000);
-    const now   = new Date();
-    const dateStr = now.toLocaleDateString('en-KE', { day:'2-digit', month:'short', year:'numeric' })
-                  + ' · ' + now.toLocaleTimeString('en-KE', { hour:'2-digit', minute:'2-digit' });
-
-    document.getElementById('r-ref').textContent = 'Ref: #' + ref;
-    document.getElementById('r-branch').textContent = currentBranch;
-    document.getElementById('r-name').textContent = name;
-    document.getElementById('r-phone').textContent = phone || '—';
-    document.getElementById('r-date').textContent = dateStr;
-    document.getElementById('r-branch-loc').textContent = currentBranchLoc;
-    document.getElementById('r-subtotal').textContent = 'KES ' + total.toFixed(2);
-    document.getElementById('r-total').textContent = 'KES ' + total.toFixed(2);
-    document.getElementById('r-barcode-num').textContent = ref;
-
-    const selectedItems = drinks.filter(d => qty[d.id] > 0);
-    document.getElementById('r-items').innerHTML = selectedItems.map(d => `
-      <div class="item-row">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:36px;height:52px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-            <img src="${d.img}" alt="${d.name}" style="max-width:36px;max-height:52px;object-fit:contain"/>
-          </div>
-          <div>
-            <div class="item-name">${d.name}</div>
-            <div class="item-qty">KES ${d.price} × ${qty[d.id]}</div>
-          </div>
-        </div>
-        <div class="item-sub">KES ${(d.price * qty[d.id]).toFixed(2)}</div>
-      </div>
-    `).join('');
-
-    generateBarcode();
-    goTo('screen3');
-  }
-
-  function generateBarcode() {
-    const bc = document.getElementById('barcode');
-    bc.innerHTML = '';
-    const widths = [3,1,2,1,3,2,1,2,1,3,2,1,1,3,2,1,2,3,1,2,1,3,1,2,3,1,2,1,3,2,1,2,1,3,2,1];
-    widths.forEach(w => {
-      const bar = document.createElement('div');
-      bar.className = 'bar';
-      bar.style.cssText = `width:${w}px;height:${28 + Math.random()*12}px;`;
-      bc.appendChild(bar);
-    });
-  }
-
-  function newOrder() {
-    document.getElementById('cust-name').value = '';
-    document.getElementById('cust-phone').value = '';
-    goTo('screen1');
-  }
-</script>
+<div th:replace="~{layout :: scripts}"></div>
 </body>
 </html>

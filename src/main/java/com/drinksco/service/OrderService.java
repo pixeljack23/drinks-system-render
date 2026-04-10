@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +28,23 @@ public class OrderService {
 
 	@Transactional
 	public Order placeOrder(Long branchId, String customerName, String customerPhone, Map<Long, Integer> quantities) {
+		return placeOrder(branchId, customerName, customerPhone, quantities, null);
+	}
+
+	@Transactional
+	public Order placeOrder(Long branchId, String customerName, String customerPhone, Map<Long, Integer> quantities, BigDecimal amountPaid) {
 		Branch branch = branchRepository.findById(branchId)
 				.orElseThrow(() -> new IllegalArgumentException("Branch not found."));
+		return placeOrder(branch, customerName, customerPhone, quantities, amountPaid);
+	}
 
+	@Transactional
+	public Order placeOrder(Branch branch, String customerName, String customerPhone, Map<Long, Integer> quantities) {
+		return placeOrder(branch, customerName, customerPhone, quantities, null);
+	}
+
+	@Transactional
+	public Order placeOrder(Branch branch, String customerName, String customerPhone, Map<Long, Integer> quantities, BigDecimal amountPaid) {
 		List<OrderItem> items = new ArrayList<>();
 		BigDecimal total = BigDecimal.ZERO;
 
@@ -40,7 +56,7 @@ public class OrderService {
 
 			Drink drink = drinkRepository.findById(entry.getKey())
 					.orElseThrow(() -> new IllegalArgumentException("Drink not found."));
-			stockService.adjustStock(branchId, drink.getId(), -quantity);
+			stockService.adjustStock(branch.getId(), drink.getId(), -quantity);
 
 			BigDecimal lineTotal = drink.getPrice().multiply(BigDecimal.valueOf(quantity));
 			OrderItem item = OrderItem.builder()
@@ -61,8 +77,10 @@ public class OrderService {
 				.branch(branch)
 				.customerName(customerName == null || customerName.isBlank() ? "Walk-in Customer" : customerName)
 				.customerPhone(customerPhone == null || customerPhone.isBlank() ? "Not provided" : customerPhone)
+				.referenceNumber(buildReferenceNumber())
 				.status("CONFIRMED")
 				.totalAmount(total)
+				.amountPaid(amountPaid == null ? total : amountPaid)
 				.build();
 
 		for (OrderItem item : items) {
@@ -71,5 +89,15 @@ public class OrderService {
 		order.setItems(items);
 
 		return orderRepository.save(order);
+	}
+
+	@Transactional(readOnly = true)
+	public Order findByReferenceNumber(String referenceNumber) {
+		return orderRepository.findByReferenceNumber(referenceNumber)
+				.orElseThrow(() -> new NoSuchElementException("Order not found."));
+	}
+
+	private String buildReferenceNumber() {
+		return "DC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 	}
 }

@@ -10,7 +10,6 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -92,12 +91,11 @@ public class OrderController {
 		}
 
 		try {
-			Order order = orderService.placeOrder(branchId, customerName, customerPhone, quantities);
+			Order order = orderService.placeOrder(branchId, customerName, customerPhone, quantities, safeAmountPaid);
 			redirectAttributes.addFlashAttribute("order", order);
 			redirectAttributes.addFlashAttribute("amountPaid", safeAmountPaid);
 			redirectAttributes.addFlashAttribute("balance", safeAmountPaid.subtract(order.getTotalAmount()));
 			redirectAttributes.addFlashAttribute("branchLabel", getBranchLabel(order.getBranch()));
-			redirectAttributes.addFlashAttribute("orderReference", buildReferenceNumber());
 			return "redirect:/order/confirmation";
 		} catch (IllegalArgumentException ex) {
 			redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -166,9 +164,5 @@ public class OrderController {
 			return "NAIROBI (HQ)";
 		}
 		return branch.getName().toUpperCase();
-	}
-
-	private String buildReferenceNumber() {
-		return "DC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 	}
 }

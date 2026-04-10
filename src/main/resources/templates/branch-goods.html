@@ -7,7 +7,7 @@
 <style>
     .menu-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.9fr);
+        grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
         gap: 1.5rem;
         align-items: start;
     }
@@ -40,15 +40,6 @@
         border-radius: 1rem;
         padding: 1rem;
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-        transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-    }
-    .drink-card.in-cart {
-        border-color: rgba(20, 184, 166, 0.46);
-        box-shadow: 0 18px 40px rgba(20, 184, 166, 0.10);
-    }
-    .drink-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 18px 40px rgba(17, 24, 39, 0.08);
     }
     .drink-head {
         display: flex;
@@ -80,53 +71,17 @@
         align-items: center;
         color: var(--brand-muted);
         margin: 0.9rem 0;
+        font-size: 0.9rem;
     }
-    .cart-pill {
-        display: inline-flex;
-        border-radius: 999px;
-        padding: 0.35rem 0.65rem;
-        background: rgba(20, 184, 166, 0.12);
-        color: #0f766e;
-        font-size: 0.78rem;
-        font-weight: 700;
-    }
-    .cart-summary {
+    .summary-box {
         position: sticky;
         top: 5.75rem;
-        display: grid;
-        gap: 1rem;
-    }
-    .cart-item {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: start;
-    }
-    .cart-item + .cart-item {
-        padding-top: 0.9rem;
-        border-top: 1px solid rgba(30, 58, 138, 0.08);
-    }
-    .cart-total-box {
-        border-radius: 1rem;
-        padding: 1rem;
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.08), rgba(20, 184, 166, 0.10));
-        border: 1px solid rgba(30, 58, 138, 0.10);
-    }
-    .cart-total-box .amount {
-        font-size: 1.85rem;
-        font-weight: 800;
-        color: var(--brand-primary);
-    }
-    .empty-cart {
-        color: var(--brand-muted);
-        text-align: center;
-        padding: 1rem 0.5rem;
     }
     @media (max-width: 1199.98px) {
         .menu-layout {
             grid-template-columns: 1fr;
         }
-        .cart-summary {
+        .summary-box {
             position: static;
         }
     }
@@ -139,9 +94,8 @@
 
 <main class="container py-5 page-shell">
     <div class="alert alert-danger" th:if="${errorMessage}" th:text="${errorMessage}"></div>
-    <div class="alert alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
 
-    <div class="menu-layout">
+    <form class="menu-layout" method="post" th:action="@{/order/{branchId}(branchId=${selectedBranch.id})}">
         <section class="page-card">
             <div class="page-card-body">
                 <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-start">
@@ -150,84 +104,70 @@
                         <h1 class="h3 mb-2">Drinks menu</h1>
                         <p class="text-secondary mb-0" th:text="'Branch: ' + ${selectedBranchLabel}">Branch: NAIROBI (HQ)</p>
                     </div>
-                    <a class="btn btn-outline-accent" th:href="@{/}">Change Branch</a>
+                    <a class="btn btn-outline-accent" th:href="@{/order}">Change Branch</a>
                 </div>
 
-                <div class="drinks-grid">
-                    <article
-                        class="drink-card"
-                        th:classappend="${cartQuantities[stock.drink.id] != null} ? ' in-cart' : ''"
-                        th:each="stock : ${stockLevels}">
+                <div class="drinks-grid" th:if="${!#lists.isEmpty(stockLevels)}">
+                    <article class="drink-card" th:each="stock : ${stockLevels}">
                         <div class="drink-head">
                             <div>
                                 <div class="drink-category" th:text="${stock.drink.category}">Soda</div>
-                                <div class="h5 mb-0" th:text="${stock.drink.name}">Cola</div>
+                                <div class="h5 mb-0" th:text="${stock.drink.name}">Coca Cola</div>
                             </div>
-                            <div class="drink-price" th:text="'$' + ${stock.drink.price}">$2.50</div>
+                            <div class="drink-price" th:text="'KES ' + ${stock.drink.price}">KES 50</div>
                         </div>
 
                         <div class="drink-meta">
                             <span th:text="|${stock.quantity} in stock|">45 in stock</span>
-                            <span class="cart-pill" th:if="${cartQuantities[stock.drink.id] != null}" th:text="|${cartQuantities[stock.drink.id]} in cart|">1 in cart</span>
-                            <span class="cart-pill" th:if="${cartQuantities[stock.drink.id] == null}">Ready</span>
+                            <span class="fw-semibold">ID <span th:text="${stock.drink.id}">1</span></span>
                         </div>
 
-                        <form method="post" th:action="@{/cart/add}">
-                            <input name="branchId" th:value="${selectedBranch.id}" type="hidden">
-                            <input name="drinkId" th:value="${stock.drink.id}" type="hidden">
-
-                            <label class="form-label fw-semibold">Quantity</label>
-                            <input class="form-control" min="1" name="quantity" th:attr="max=${stock.quantity}" type="number" value="1">
-                            <div class="form-text">Enter quantity, then add the drink to cart.</div>
-
-                            <button class="btn btn-dark mt-3 w-100" type="submit">Add To Cart</button>
-                        </form>
+                        <label class="form-label fw-semibold" th:for="|drink_${stock.drink.id}|">Quantity</label>
+                        <input class="form-control"
+                               th:id="|drink_${stock.drink.id}|"
+                               th:name="|drink_${stock.drink.id}|"
+                               min="0"
+                               th:attr="max=${stock.quantity}"
+                               type="number"
+                               value="0">
                     </article>
+                </div>
+
+                <div class="surface-card p-4 mt-4 text-center" th:if="${#lists.isEmpty(stockLevels)}">
+                    <h2 class="h5 mb-2">No drinks available</h2>
+                    <p class="text-secondary mb-0">This branch currently has no saleable stock.</p>
                 </div>
             </div>
         </section>
 
-        <aside class="cart-summary">
+        <aside class="summary-box">
             <div class="page-card">
                 <div class="page-card-body">
-                    <div class="screen-kicker">Current Cart</div>
-                    <h2 class="h4 mb-2">Selected drinks</h2>
-                    <p class="text-secondary">Review current selections before going to checkout.</p>
+                    <div class="screen-kicker">Customer Details</div>
+                    <h2 class="h4 mb-2">Complete the order</h2>
+                    <p class="text-secondary">Enter payment and submit once the quantities are selected.</p>
 
-                    <div class="cart-total-box mb-3">
-                        <div class="text-secondary mb-1">Running Total</div>
-                        <div class="amount" th:text="'$' + ${cartTotal}">$0.00</div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="customerName">Customer Name</label>
+                        <input class="form-control" id="customerName" name="customerName" placeholder="Walk-in customer">
                     </div>
 
-                    <div class="d-flex justify-content-between mb-3">
-                        <span class="text-secondary">Units in cart</span>
-                        <span class="fw-bold" th:text="${cartUnits}">0</span>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="customerPhone">Customer Phone</label>
+                        <input class="form-control" id="customerPhone" name="customerPhone" placeholder="07XX XXX XXX">
                     </div>
 
-                    <div th:if="${!#lists.isEmpty(cartItems)}">
-                        <div class="cart-item" th:each="item : ${cartItems}">
-                            <div>
-                                <div class="fw-semibold" th:text="${item.drinkName}">Cola</div>
-                                <div class="text-secondary small" th:text="|${item.quantity} x $${item.unitPrice}|">1 x $2.50</div>
-                            </div>
-                            <div class="fw-bold" th:text="'$' + ${item.lineTotal}">$2.50</div>
-                        </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" for="amountPaid">Amount Paid</label>
+                        <input class="form-control" id="amountPaid" min="0" name="amountPaid" step="0.01" type="number" value="0">
+                        <div class="form-text">Payment must be at least the selected order total.</div>
                     </div>
 
-                    <div class="empty-cart" th:if="${#lists.isEmpty(cartItems)}">
-                        No drinks added yet.
-                    </div>
-
-                    <a
-                        class="btn btn-primary btn-lg w-100 mt-4"
-                        th:classappend="${#lists.isEmpty(cartItems)} ? ' disabled' : ''"
-                        th:href="@{/checkout(branchId=${selectedBranch.id})}">
-                        Go To Checkout
-                    </a>
+                    <button class="btn btn-dark btn-lg w-100" th:disabled="${#lists.isEmpty(stockLevels)}" type="submit">Generate Receipt</button>
                 </div>
             </div>
         </aside>
-    </div>
+    </form>
 </main>
 
 <div th:replace="~{layout :: scripts}"></div>

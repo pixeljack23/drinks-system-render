@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{sidebar :: head(${pageTitle})}"></head>
+<head th:replace="~{layout :: head(${pageTitle})}"></head>
 <body>
-<div th:replace="~{sidebar :: navbar}"></div>
+<div th:replace="~{layout :: navbar}"></div>
 
 <style>
     .receipt-shell {
@@ -80,7 +80,7 @@
                 <div class="receipt-meta">
                     <div class="meta-box">
                         <div class="meta-label">Receipt No</div>
-                        <div class="fw-bold" th:text="'RCPT-' + ${order.id}">RCPT-1</div>
+                        <div class="fw-bold" th:text="${order.referenceNumber}">DC-ABCDEFG</div>
                     </div>
                     <div class="meta-box">
                         <div class="meta-label">Customer</div>
@@ -110,8 +110,8 @@
                         <tr th:each="item : ${order.items}">
                             <td th:text="${item.drink.name}">Cola</td>
                             <td th:text="${item.quantity}">1</td>
-                            <td th:text="'$' + ${item.unitPrice}">$2.50</td>
-                            <td th:text="'$' + ${item.lineTotal}">$2.50</td>
+                            <td th:text="'KES ' + ${item.unitPrice}">KES 50</td>
+                            <td th:text="'KES ' + ${item.lineTotal}">KES 50</td>
                         </tr>
                         </tbody>
                     </table>
@@ -120,15 +120,15 @@
                 <div class="totals-panel">
                     <div class="total-box">
                         <div class="meta-label">Order Total</div>
-                        <div class="fs-4 fw-bold" th:text="'$' + ${order.totalAmount}">$7.50</div>
+                        <div class="fs-4 fw-bold" th:text="'KES ' + ${order.totalAmount}">KES 145</div>
                     </div>
                     <div class="total-box">
                         <div class="meta-label">Amount Paid</div>
-                        <div class="fs-4 fw-bold" th:text="'$' + ${amountPaid}">$10.00</div>
+                        <div class="fs-4 fw-bold" th:text="'KES ' + ${amountPaid}">KES 200</div>
                     </div>
                     <div class="total-box">
                         <div class="meta-label">Change Returned</div>
-                        <div class="fs-4 fw-bold" th:text="'$' + ${balance}">$2.50</div>
+                        <div class="fs-4 fw-bold" th:text="'KES ' + ${balance}">KES 55</div>
                     </div>
                 </div>
 

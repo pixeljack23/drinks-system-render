@@ -85,21 +85,13 @@ public class CustomerOrderService {
 			throw new IllegalArgumentException("Select at least one drink before placing the order.");
 		}
 
-		Map<StockLevel, Integer> selectedStock = new LinkedHashMap<>();
-		for (StockLevel stockLevel : menuStock) {
-			Integer quantity = requestedQuantities.get(stockLevel.getDrink().getId());
-			if (quantity != null && quantity > 0) {
-				selectedStock.put(stockLevel, quantity);
-			}
-		}
-
-		BigDecimal totalAmount = calculateTotal(selectedStock);
+		BigDecimal totalAmount = calculateTotal(requestedQuantities, stockByDrinkId);
 		BigDecimal amountPaid = request.amountPaid() == null ? totalAmount : request.amountPaid();
 		if (amountPaid.compareTo(totalAmount) < 0) {
 			throw new IllegalArgumentException("Amount paid cannot be less than the order total.");
 		}
 
-		Order order = orderService.placeOrder(branch, request.customerName(), request.customerPhone(), selectedStock);
+		Order order = orderService.placeOrder(branch, request.customerName(), request.customerPhone(), requestedQuantities, amountPaid);
 		return toReceiptResponse(order, amountPaid);
 	}
 
@@ -108,10 +100,14 @@ public class CustomerOrderService {
 		return toReceiptResponse(orderService.findByReferenceNumber(referenceNumber), null);
 	}
 
-	private BigDecimal calculateTotal(Map<StockLevel, Integer> selectedStock) {
+	private BigDecimal calculateTotal(Map<Long, Integer> requestedQuantities, Map<Long, StockLevel> stockByDrinkId) {
 		BigDecimal total = BigDecimal.ZERO;
-		for (Map.Entry<StockLevel, Integer> entry : selectedStock.entrySet()) {
-			total = total.add(entry.getKey().getDrink().getPrice().multiply(BigDecimal.valueOf(entry.getValue())));
+		for (Map.Entry<Long, Integer> entry : requestedQuantities.entrySet()) {
+			StockLevel stockLevel = stockByDrinkId.get(entry.getKey());
+			if (stockLevel == null) {
+				throw new IllegalArgumentException("Drink not available for the selected branch.");
+			}
+			total = total.add(stockLevel.getDrink().getPrice().multiply(BigDecimal.valueOf(entry.getValue())));
 		}
 		return total;
 	}
@@ -135,7 +131,9 @@ public class CustomerOrderService {
 	}
 
 	private CustomerReceiptResponse toReceiptResponse(Order order, BigDecimal amountPaidOverride) {
-		BigDecimal amountPaid = amountPaidOverride == null ? order.getTotalAmount() : amountPaidOverride;
+		BigDecimal amountPaid = amountPaidOverride == null
+				? (order.getAmountPaid() == null ? order.getTotalAmount() : order.getAmountPaid())
+				: amountPaidOverride;
 		BigDecimal balance = amountPaid.subtract(order.getTotalAmount());
 		List<CustomerReceiptItemResponse> items = order.getItems().stream()
 				.map(this::toReceiptItemResponse)
