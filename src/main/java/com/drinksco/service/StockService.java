@@ -48,6 +48,14 @@ public class StockService {
 		stockLevel.setQuantity(updatedQuantity);
 	}
 
+	@Transactional
+	public void restock(Long branchId, Long drinkId, Integer quantity) {
+		if (quantity == null || quantity <= 0) {
+			throw new IllegalArgumentException("Restock quantity must be greater than zero.");
+		}
+		adjustStock(branchId, drinkId, quantity);
+	}
+
 	public List<Branch> getAllBranches() {
 		return branchRepository.findAll();
 	}

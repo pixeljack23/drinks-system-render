@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
@@ -47,6 +49,21 @@ public class AdminController {
 				? List.of()
 				: stockService.getStockForBranch(selectedBranchId));
 		return "admin/stock";
+	}
+
+	@PostMapping("/admin/stock/restock")
+	public String restock(
+			@RequestParam Long branchId,
+			@RequestParam Long drinkId,
+			@RequestParam Integer quantity,
+			RedirectAttributes redirectAttributes) {
+		try {
+			stockService.restock(branchId, drinkId, quantity);
+			redirectAttributes.addFlashAttribute("successMessage", "Stock updated successfully.");
+		} catch (IllegalArgumentException ex) {
+			redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+		}
+		return "redirect:/admin/stock?branchId=" + branchId;
 	}
 
 	@GetMapping("/admin/orders")
